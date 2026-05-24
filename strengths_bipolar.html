@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クリフトンストレングス 177問診断ツール</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+      background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center;
+      padding: 40px 0 20px;
+      background: linear-gradient(135deg, #7A32A3 0%, #E87722 50%, #1B6BAE 100%);
+      color: white;
+      margin: -20px -20px 30px -20px;
+      padding: 40px 20px;
+    }
+    header h1 { font-size: 2.2em; margin-bottom: 5px; }
+    header p { font-size: 0.95em; opacity: 0.95; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 500;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      margin-bottom: -2px;
+    }
+    .tab-btn.active {
+      color: #333;
+      border-bottom-color: #7A32A3;
+    }
+    .tab-btn:hover { color: #333; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Browse Tab */
+    .domain-section { margin-bottom: 40px; }
+    .domain-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid;
+    }
+    .strength-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .strength-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .strength-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .strength-card-header {
+      padding: 15px;
+      color: white;
+      font-weight: bold;
+    }
+    .strength-card-name { font-size: 1.1em; margin-bottom: 5px; }
+    .strength-card-en { font-size: 0.85em; opacity: 0.9; }
+    .strength-card-body {
+      padding: 15px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .strength-card.expanded .strength-card-body { max-height: 500px; }
+    .strength-card-desc { margin-bottom: 12px; font-size: 0.95em; }
+    .strength-card-tips {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    .strength-card-tips strong { display: block; margin-bottom: 5px; }
+    .strength-card-tips li { margin-left: 20px; margin-bottom: 5px; }
+
+    /* Quiz Tab */
+    .quiz-intro {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .quiz-intro h2 { margin-bottom: 15px; }
+    .quiz-intro p { margin-bottom: 10px; color: #666; }
+    .start-btn {
+      background: linear-gradient(135deg, #7A32A3 0%, #E87722 100%);
+      color: white;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+    .start-btn:hover { transform: scale(1.05); }
+
+    .quiz-container { display: none; }
+    .quiz-container.active { display: block; }
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7A32A3 0%, #E87722 50%, #1B6BAE 100%);
+      width: 0;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 0.95em;
+      color: #666;
+    }
+
+    .bipolar-card {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .bipolar-content {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .bipolar-content { grid-template-columns: 1fr; }
+    }
+    .bipolar-text { font-size: 0.95em; line-height: 1.5; }
+    .bipolar-text.a { text-align: right; }
+    .bipolar-text.b { text-align: left; }
+    @media (max-width: 640px) {
+      .bipolar-text.a { text-align: left; }
+      .bipolar-text.b { text-align: left; }
+    }
+    .scale-buttons {
+      display: flex;
+      gap: 8px;
+      flex-direction: column;
+    }
+    @media (max-width: 640px) {
+      .scale-buttons { flex-direction: row; justify-content: center; }
+    }
+    .scale-btn {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: all 0.2s ease;
+    }
+    .scale-btn:hover { transform: scale(1.08); border-color: #7A32A3; }
+    .scale-btn.selected {
+      background: #7A32A3;
+      color: white;
+      border-color: #7A32A3;
+      transform: scale(1.12);
+    }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      font-size: 0.85em;
+      color: #999;
+    }
+
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 10px;
+    }
+    .nav-btn {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover:not(:disabled) { background: #f5f5f5; }
+    .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .completion-panel {
+      background: linear-gradient(135deg, #7A32A3 0%, #E87722 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    .completion-panel.show { display: block; animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .completion-panel h2 { font-size: 2em; margin-bottom: 15px; }
+    .completion-panel p { font-size: 1.1em; margin-bottom: 30px; }
+    .results-btn {
+      background: white;
+      color: #7A32A3;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .results-btn:hover { transform: scale(1.05); }
+
+    /* Results Tab */
+    .results-container { display: none; }
+    .results-container.active { display: block; }
+    .results-header {
+      background: linear-gradient(135deg, #7A32A3 0%, #E87722 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    .dominant-domain {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .domain-score-bar {
+      background: white;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      padding: 5px;
+    }
+    .domain-score-bar-label {
+      width: 120px;
+      font-weight: bold;
+      color: #333;
+      font-size: 0.9em;
+    }
+    .domain-score-bar-fill {
+      flex: 1;
+      height: 30px;
+      border-radius: 4px;
+      transition: width 1.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .top5-section {
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ddd;
+    }
+    .top5-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .result-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid;
+    }
+    .result-card-rank {
+      font-size: 0.9em;
+      color: #999;
+      margin-bottom: 5px;
+    }
+    .result-card-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .result-card-score {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .result-card-desc {
+      font-size: 0.95em;
+      line-height: 1.5;
+      color: #666;
+    }
+
+    .ranking-table {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    .ranking-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ranking-table th {
+      background: #f5f5f5;
+      padding: 15px;
+      text-align: left;
+      font-weight: bold;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .ranking-table td {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .ranking-rank { width: 60px; font-weight: bold; }
+    .ranking-name { font-weight: 500; }
+    .ranking-score { text-align: right; font-weight: bold; width: 80px; }
+    .ranking-table tr:hover { background: #f9f9f9; }
+
+    .retry-btn {
+      background: linear-gradient(135deg, #7A32A3 0%, #E87722 100%);
+      color: white;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 30px auto 0;
+    }
+    .retry-btn:hover { transform: scale(1.05); }
+
+    /* Color utilities */
+    .exe { color: #7A32A3; }
+    .bg-exe { background-color: #7A32A3; }
+    .inf { color: #E87722; }
+    .bg-inf { background-color: #E87722; }
+    .rel { color: #1B6BAE; }
+    .bg-rel { background-color: #1B6BAE; }
+    .str { color: #00855B; }
+    .bg-str { background-color: #00855B; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎯 クリフトンストレングス 177問診断ツール</h1>
+    <p>あなたの強みを発見しよう</p>
+  </header>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('browse')">📖 34資質一覧</button>
+      <button class="tab-btn" onclick="showTab('quiz')">📝 177問診断</button>
+      <button class="tab-btn" onclick="showTab('results')">📊 結果分析</button>
+    </div>
+
+    <!-- Browse Tab -->
+    <div id="browse" class="tab-content active"></div>
+
+    <!-- Quiz Tab -->
+    <div id="quiz" class="tab-content">
+      <div class="quiz-intro">
+        <h2>クリフトンストレングス診断テスト</h2>
+        <p>以下の177問の対比式設問に答えることで、あなたの強みプロフィールが明らかになります。</p>
+        <p>直感的に、迷わず答えることが大切です。所要時間：約20～30分</p>
+        <button class="start-btn" onclick="startQuiz()">診断を開始する</button>
+      </div>
+
+      <div class="quiz-container">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text"><span id="progress-num">0</span> / 177問</div>
+
+        <div class="bipolar-card">
+          <div class="bipolar-content">
+            <div class="bipolar-text a" id="text-a"></div>
+            <div class="scale-buttons" id="scale-buttons"></div>
+            <div class="bipolar-text b" id="text-b"></div>
+          </div>
+          <div class="scale-labels">
+            <span>← Aに近い</span>
+            <span>どちらでもない</span>
+            <span>Bに近い →</span>
+          </div>
+        </div>
+
+        <div class="quiz-nav">
+          <button class="nav-btn" onclick="prevQ()" id="prev-btn">← 前の質問</button>
+          <button class="nav-btn" onclick="nextQ()" id="next-btn">次の質問 →</button>
+        </div>
+
+        <div class="completion-panel" id="completion-panel">
+          <h2>✅ 診断完了！</h2>
+          <p>177問すべての質問に回答いただきました。</p>
+          <button class="results-btn" onclick="showResults()">結果を見る</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Tab -->
+    <div id="results" class="tab-content results-container"></div>
+  </div>
+
+  <script>
+    // ドメイン定義
+    const CATS = {
+      exe: { name: '実行力', color: '#7A32A3' },
+      inf: { name: '影響力', color: '#E87722' },
+      rel: { name: '人間関係構築力', color: '#1B6BAE' },
+      str: { name: '戦略的思考力', color: '#00855B' }
+    };
+
+    // 34資質マスターデータ
+    const S = [
+      { id: 'achiever', name: '達成欲', en: 'Achiever', cat: 'exe', desc: '目標達成への強い動機づけを持ち、成果を追求し続ける力。計測可能な目標設定と進捗管理に長けています。', tips: ['目標を明確に設定する', '定期的に進捗を確認する', '成果を記録・可視化する'] },
+      { id: 'arranger', name: 'アレンジ', en: 'Arranger', cat: 'exe', desc: '複雑な要素を効率的に整理・組織化し、最善の組み合わせを見つける力。リソース配置の最適化が得意です。', tips: ['プロセスの最適化を試みる', 'チーム内の役割分担を工夫する', '複数の案を検討する'] },
+      { id: 'belief', name: '信念', en: 'Belief', cat: 'exe', desc: '揺るがぬ価値観と人生の目的に基づき、主義を貫く力。社会貢献への使命感が強いです。', tips: ['自分の価値観を明確にする', '意義のある仕事に取り組む', 'コミュニティへの貢献を探す'] },
+      { id: 'consistency', name: '公平性', en: 'Consistency', cat: 'exe', desc: '一貫したルール適用と公正性を重視する力。不公正さに敏感で、誰に対しても同じ基準を適用します。', tips: ['プロセスの透明性を保つ', '公正な評価基準を設定する', 'ルール遵守を励行する'] },
+      { id: 'deliberative', name: '慎重さ', en: 'Deliberative', cat: 'exe', desc: 'リスク認識と注意深い検討を通じて、落とし穴を事前に回避する力。慎重で思慮深い判断ができます。', tips: ['リスク分析を丁寧に行う', '決定前に充分検討する', 'チェックリストを活用する'] },
+      { id: 'discipline', name: '規律性', en: 'Discipline', cat: 'exe', desc: '計画通りに実行し、スケジュール管理と秩序を維持する力。ルーチンと体系性が得意です。', tips: ['毎日のルーチンを確立する', 'スケジュール帳を活用する', 'チェックリストで進捗管理する'] },
+      { id: 'focus', name: '目標志向', en: 'Focus', cat: 'exe', desc: '明確な目標に向かって邁進し、方向性を見失わない力。優先順位付けが得意で、脇道に逸れません。', tips: ['年間目標を設定する', '四半期で進捗確認する', '優先事項に集中する'] },
+      { id: 'responsibility', name: '責任感', en: 'Responsibility', cat: 'exe', desc: '引き受けた約束を果たす強い義務感と信頼性。自分の言葉に責任を持ち、報酬よりも名誉を重視します。', tips: ['約束は必ず実現する', '完成度にこだわる', 'スケジュール管理を徹底する'] },
+      { id: 'restorative', name: '回復志向', en: 'Restorative', cat: 'exe', desc: '問題の根本原因を診断し、解決へと導く力。トラブルシューティングと改善が得意です。', tips: ['問題の根本を追求する', '過去のケーススタディを活用する', 'スキルアップに投資する'] },
+      { id: 'activator', name: '活発性', en: 'Activator', cat: 'inf', desc: '即座に行動を起こし、迷いなく前に進む力。スピーディーな実行力と機動力があります。', tips: ['小さく始めて反復する', 'ビジョンを共有して動く', '判断スピードを意識する'] },
+      { id: 'command', name: '指令性', en: 'Command', cat: 'inf', desc: '率先してリーダーシップを発揮し、判断と決定を下す力。責任をとって前に進むことを厭いません。', tips: ['決定権を活用する', 'チーム内で明確な指示を出す', 'リーダーシップロールを担う'] },
+      { id: 'communication', name: 'コミュニケーション', en: 'Communication', cat: 'inf', desc: '言語能力に長け、複雑な事柄をわかりやすく説明する力。プレゼンテーションが得意です。', tips: ['ストーリー性を持たせて話す', '聞き手のレベルに合わせる', 'パブリックスピーキングを磨く'] },
+      { id: 'competition', name: '競争性', en: 'Competition', cat: 'inf', desc: '他者との比較を通じてモチベーションを高め、勝つことを目指す力。チャレンジを好みます。', tips: ['明確なライバルを設定する', '成績ランキングを確認する', 'ゲーム要素を取り入れる'] },
+      { id: 'maximizer', name: '最上志向', en: 'Maximizer', cat: 'inf', desc: '得意なことをさらに伸ばし、卓越性を追求する力。平凡さを嫌い、レベルアップに注力します。', tips: ['得意分野に時間を投資する', 'メンター・師匠を探す', 'ベストプラクティスを学ぶ'] },
+      { id: 'self-assurance', name: '自己確信', en: 'Self-Assurance', cat: 'inf', desc: '自分の判断と能力に信頼を置き、揺らがない自信を持つ力。不確実性の中でも前に進めます。', tips: ['過去の成功体験を振り返る', '自分の強みを認識する', '新しいチャレンジに挑戦する'] },
+      { id: 'significance', name: '自我', en: 'Significance', cat: 'inf', desc: '他者から認められ、意味のある存在であると感じたい欲求。自分の価値を示し、貢献したいという力。', tips: ['存在感のあるプロジェクトに携わる', '自分の成果を可視化する', 'メンタリングで後進を育成する'] },
+      { id: 'woo', name: '社交性', en: 'Woo', cat: 'inf', desc: '新しい人間関係を開拓し、他者との繋がりを楽しむ力。初対面で信頼を勝ち取るのが得意です。', tips: ['積極的にネットワークを広げる', 'イベント・交流会に参加する', '人脈を活用した提案を心がける'] },
+      { id: 'adaptability', name: '適応性', en: 'Adaptability', cat: 'rel', desc: '変化を受け入れ、その場その時に柔軟に対応する力。計画の変更も臨機応変に対応できます。', tips: ['変化を前向きに捉える', 'フレキシブルなスケジュール管理', 'パイプラインを複数持つ'] },
+      { id: 'connectedness', name: '運命思考', en: 'Connectedness', cat: 'rel', desc: '人生や世界の繋がりと目的を感じ、より大きな流れの一部として行動する力。', tips: ['長期的視点で考える', 'メンタルウェルネスを大切にする', 'スピリチュアルな学習に時間を使う'] },
+      { id: 'developer', name: '成長促進', en: 'Developer', cat: 'rel', desc: '他者の成長を見守り、その進化を支援することに喜びを感じる力。メンタリングが得意です。', tips: ['部下育成に時間を投資する', 'フィードバックを定期的に行う', 'スキル開発の機会を提供する'] },
+      { id: 'empathy', name: '共感性', en: 'Empathy', cat: 'rel', desc: '他者の感情や立場を理解し、心に寄り添う力。相談相手として信頼されます。', tips: ['相手の話をしっかり聴く', 'これまでの経験を共有する', 'サポートコミュニティに参加する'] },
+      { id: 'harmony', name: '調和性', en: 'Harmony', cat: 'rel', desc: '意見の一致と協調を重視し、対立を避けて合意形成を図る力。平和な関係構築が得意です。', tips: ['チーム内のまとめ役を担う', 'コンセンサスを大切にする', 'コンフリクト解決スキルを磨く'] },
+      { id: 'includer', name: '包含', en: 'Includer', cat: 'rel', desc: '誰もが属し、価値のある存在だと感じるよう気遣い、みんなを巻き込む力。', tips: ['チーム全体の声を拾う', 'すべての人の意見を尊重する', 'サークル形で意見交換する'] },
+      { id: 'individualization', name: '個別化', en: 'Individualization', cat: 'rel', desc: '個々人の違いや独自性を認識し、その人に合わせたアプローチができる力。', tips: ['部下ひとり一人に向き合う', 'カスタマイズされたアドバイスを心がける', '多様性を重視する'] },
+      { id: 'positivity', name: 'ポジティブ', en: 'Positivity', cat: 'rel', desc: '楽観性と前向きさで、周囲を励ましやる気を引き出す力。雰囲気を明るくします。', tips: ['感謝や褒める習慣を持つ', 'ユーモアを交える', 'チーム内での励ましを忘れない'] },
+      { id: 'relator', name: '親密性', en: 'Relator', cat: 'rel', desc: '深い一対一の関係を築き、信頼と絆を大切にする力。真の友情を求めます。', tips: ['一対一で向き合う時間を確保', '相手を深く知ろうとする', '長期的な関係を築く'] },
+      { id: 'analytical', name: '分析思考', en: 'Analytical', cat: 'str', desc: 'データと根拠に基づいて論理的に思考し、因果関係を追求する力。複雑な問題の構造化が得意です。', tips: ['データドリブンな判断を心がける', '根拠を示した提案をする', 'ロジカルシンキングを磨く'] },
+      { id: 'context', name: '原点思考', en: 'Context', cat: 'str', desc: '歴史背景を理解し、過去の経験から現在と未来を読み解く力。文脈を重視した判断ができます。', tips: ['業界・組織の歴史を学ぶ', 'ケーススタディを活用する', '長期トレンドを分析する'] },
+      { id: 'futuristic', name: '未来志向', en: 'Futuristic', cat: 'str', desc: 'これから起きることを想像し、ビジョンを描いて行動する力。先見の明があります。', tips: ['トレンド情報を常にキャッチ', 'シナリオプランニングを活用', '成長分野への投資を心がける'] },
+      { id: 'ideation', name: '着想', en: 'Ideation', cat: 'str', desc: '新しい考え方やパターンを見つけ、創造的なアイデアを生み出す力。革新的な発想が得意です。', tips: ['ブレインストーミングを活用', 'デザイン思考を学ぶ', 'アイデア帳をつける'] },
+      { id: 'input', name: '収集心', en: 'Input', cat: 'str', desc: '情報や知識の蓄積に情熱を持ち、興味深いものはなんでも集める力。知的好奇心が旺盛です。', tips: ['学習習慣を確立する', '書籍や記事を定期的に読む', 'オンラインコースで学ぶ'] },
+      { id: 'intellection', name: '内省', en: 'Intellection', cat: 'str', desc: '思考を深め、自分や周囲を内省的に考察する力。観想的で哲学的な思索が好きです。', tips: ['瞑想時間を設ける', '日記で考えを整理する', '読書会で議論する'] },
+      { id: 'learner', name: '学習欲', en: 'Learner', cat: 'str', desc: '学習プロセスそのものを楽しみ、新しいスキルと知識を習得する力。成長志向が高いです。', tips: ['新しいスキルに挑戦する', '教育プログラムに参加する', '学んだことを人に教える'] },
+      { id: 'strategic', name: '戦略性', en: 'Strategic', cat: 'str', desc: '複数の道筋を見通し、複雑な状況を切り抜ける最善の道を見つける力。戦術的思考に長けています。', tips: ['複数のシナリオを検討する', 'ゲーム理論を学ぶ', '競合分析を定期的に行う'] }
+    ];
+
+    // 177問の質問データ
+    const Q = [
+      { l: 'achiever', r: 'adaptability', a: '毎日、何かを成し遂げることが私のモチベーションです。', b: '計画よりも、その時々の状況に対応することが大切だと思います。' },
+      { l: 'achiever', r: 'connectedness', a: '目標達成のための努力は、長期的な自己成長につながると信じます。', b: '人生は必然のつながりの中で展開していると感じます。' },
+      { l: 'achiever', r: 'developer', a: 'タスクを完了することで、自分の価値を示したいです。', b: '他人が成長するのを見守ることが、私にとって最大の報酬です。' },
+      { l: 'achiever', r: 'empathy', a: 'チームで目標を達成することが、個人的な充足感につながります。', b: 'チームメンバーの感情的なニーズを理解することが大切です。' },
+      { l: 'achiever', r: 'harmony', a: '成果を競うことで、チーム全体のレベルが上がると考えます。', b: 'チーム内の協調と一致団結が最も重要です。' },
+      { l: 'achiever', r: 'includer', a: '高い目標を掲げることで、全員がそれに向かって頑張ると思います。', b: 'みんなが参加し、声が聞かれる環境が大切です。' },
+      { l: 'achiever', r: 'individualization', a: '一定の基準で成果を測定することが公平だと考えます。', b: 'それぞれの人の違いを認識して、個別にアプローチすべきです。' },
+      { l: 'achiever', r: 'positivity', a: '目標達成に向けて、計画的で堅実な進め方を好みます。', b: '楽観的な視点で、前向きに物事を進めるべきだと思います。' },
+      { l: 'achiever', r: 'relator', a: '成果が、自分の能力を証明する最良の方法だと思います。', b: '深い人間関係の中で、自分の価値を認識できます。' },
+      { l: 'achiever', r: 'analytical', a: '計測可能な目標を設定して、達成度を確認することが重要です。', b: 'データを詳しく分析して、根本原因を理解することが大切です。' },
+      { l: 'arranger', r: 'adaptability', a: '物事を効率的に整理・組織化することが、私の得意分野です。', b: '変化に対応して、柔軟に計画を調整することが大切です。' },
+      { l: 'arranger', r: 'connectedness', a: 'プロセスの最適化を通じて、組織の生産性を高めたいです。', b: '物事がより大きな目的の一部として機能することが重要です。' },
+      { l: 'arranger', r: 'developer', a: 'リソースを最適に配置することで、チーム全体の力が引き出されます。', b: '各メンバーが成長できるような役割配置を心がけます。' },
+      { l: 'arranger', r: 'empathy', a: 'システムを整えることが、運営をスムーズにするコツです。', b: 'メンバーがどのような環境で働きたいかを理解することが大切です。' },
+      { l: 'arranger', r: 'harmony', a: '複数の要素を組み合わせる最適な方法を見つけるのが好きです。', b: 'すべてが調和した、バランスの取れた配置を目指します。' },
+      { l: 'arranger', r: 'includer', a: 'システムの効率性を高めるため、時には最適化が必要です。', b: 'みんなが参加でき、誰も除外されない仕組みが大切です。' },
+      { l: 'arranger', r: 'individualization', a: 'プロセスを統一することで、一貫性と効率が生まれます。', b: '個々人のニーズに合わせた、柔軟な対応が理想的です。' },
+      { l: 'arranger', r: 'positivity', a: '計画的で組織的なアプローチが、成功の基盤です。', b: 'ポジティブな雰囲気の中で、新しいアイデアが生まれます。' },
+      { l: 'arranger', r: 'relator', a: 'システムの効率性を高めることが、自分のモチベーションです。', b: '個人的な関係を通じて、信頼を構築することが大切です。' },
+      { l: 'arranger', r: 'analytical', a: '最適な配置を見つけるため、複数の組み合わせを試します。', b: 'データを分析して、理想的な構造を作り上げたいです。' },
+      { l: 'belief', r: 'adaptability', a: '自分の信念に基づいて、一貫した行動をしたいです。', b: '状況に応じて、柔軟に方針を変えることも必要だと思います。' },
+      { l: 'belief', r: 'connectedness', a: '明確な価値観を持つことが、自分のアイデンティティです。', b: '人生はより大きな流れの一部として展開していると感じます。' },
+      { l: 'belief', r: 'developer', a: '自分の信念を実現することが、最大の目標です。', b: 'その過程で、他人の成長を支援できたら素晴らしいです。' },
+      { l: 'belief', r: 'empathy', a: '自分の原則を守ることが、自己尊重につながります。', b: '他者の感情や立場を理解することで、より良い判断ができます。' },
+      { l: 'belief', r: 'harmony', a: '自分の信念に忠実であることが、最も重要です。', b: 'その信念がチーム内の調和を損なわないことも大切です。' },
+      { l: 'belief', r: 'includer', a: 'コミュニティへの貢献は、自分の使命の一部です。', b: 'その貢献が、すべての人を含むものであるべきです。' },
+      { l: 'belief', r: 'individualization', a: 'より良い社会の実現を目指して、行動したいです。', b: '各個人のニーズを理解した上での、社会貢献を心がけます。' },
+      { l: 'belief', r: 'positivity', a: '人生の目的と意義を追求することが大切だと思います。', b: '楽観的な見方で、困難を乗り越えることも重要です。' },
+      { l: 'belief', r: 'relator', a: '自分の信念を大切にすることで、真の自分が表現できます。', b: '深い人間関係の中で、その信念を実現したいです。' },
+      { l: 'belief', r: 'analytical', a: '倫理的原則を守ることが、自分の行動の基準です。', b: 'その原則が、論理的に一貫していることが大切です。' },
+      { l: 'consistency', r: 'adaptability', a: 'すべての人に同じ基準を適用することが公正だと思います。', b: '状況によって、柔軟に基準を調整することも必要です。' },
+      { l: 'consistency', r: 'connectedness', a: '公平性を保つことで、社会の信頼が構築されます。', b: '人生の深い意味を理解することも、同じくらい大切です。' },
+      { l: 'consistency', r: 'developer', a: 'ルールを公平に適用することが、チーム運営の基本です。', b: 'それぞれのメンバーの成長をサポートすることも大切です。' },
+      { l: 'consistency', r: 'empathy', a: '公正性を保つため、感情的にならず客観的に判断します。', b: '相手の感情や立場も理解した上での判断が大切です。' },
+      { l: 'consistency', r: 'harmony', a: '一貫したルール適用が、組織の秩序を保ちます。', b: 'ただし、調和を損なわないバランスも必要です。' },
+      { l: 'consistency', r: 'includer', a: 'ルールは、誰に対しても平等に適用されるべきです。', b: 'そのルールが、すべての人を公平に扱っているか確認が必要です。' },
+      { l: 'consistency', r: 'individualization', a: '一定の基準を守ることが、公平さの証です。', b: '個々人の違いも認識した上で、公正に対応すべきです。' },
+      { l: 'consistency', r: 'positivity', a: 'ルール遵守と一貫性が、信頼される組織を作ります。', b: 'ただし、その過程をポジティブに進めることも大切です。' },
+      { l: 'consistency', r: 'relator', a: 'どの人間関係においても、公平性を保つよう心がけます。', b: '深い関係だからこそ、信頼と公正さがより重要です。' },
+      { l: 'consistency', r: 'analytical', a: 'ルールの一貫性が、組織の安定性につながります。', b: 'その一貫性が、論理的に正当性を持っているか検証が必要です。' },
+      { l: 'deliberative', r: 'activator', a: 'リスクを十分に検討した上で、行動を起こしたいです。', b: '思考より行動を優先して、スピーディーに進めるべきです。' },
+      { l: 'deliberative', r: 'command', a: 'すべての潜在的な問題を検討した上で、決断したいです。', b: '判断と決定は、素早く下すべきだと思います。' },
+      { l: 'deliberative', r: 'communication', a: 'リスクについて詳しく説明することが責任だと思います。', b: '分かりやすく、簡潔に説明することが大切です。' },
+      { l: 'deliberative', r: 'competition', a: '慎重に準備することで、成功の確度が高まります。', b: '挑戦することそのものが、モチベーションになります。' },
+      { l: 'deliberative', r: 'maximizer', a: 'リスク回避に注力することで、安定が生まれます。', b: '得意なことに集中して、卓越性を追求すべきです。' },
+      { l: 'deliberative', r: 'self-assurance', a: '不確実性に備える準備が大切だと思います。', b: '自分の能力に信頼を持って、先に進むべきです。' },
+      { l: 'deliberative', r: 'significance', a: 'リスク管理を徹底することで、失敗を防げます。', b: '大きな成果を追求する中で、多少のリスクは受け入れるべきです。' },
+      { l: 'deliberative', r: 'woo', a: '慎重な検討を経て、関係を構築する方が信頼につながります。', b: '人との関係は、スピーディーに構築できるものです。' },
+      { l: 'discipline', r: 'adaptability', a: 'スケジュール通りに実行することが、成功の鍵です。', b: '予期しない変化に対応する柔軟性も大切です。' },
+      { l: 'discipline', r: 'connectedness', a: '日々のルーチンを大切にすることで、安定が生まれます。', b: 'より大きな目的や意味を感じながら行動したいです。' },
+      { l: 'discipline', r: 'developer', a: '毎日の規律正しい行動が、成果につながります。', b: '他者の成長を促す環境作りにも力を入れたいです。' },
+      { l: 'discipline', r: 'empathy', a: '計画通りに進めることが、効率的だと思います。', b: 'メンバーの感情や状況も考慮した対応が大切です。' },
+      { l: 'discipline', r: 'harmony', a: '秩序と体系性を保つことが、安定につながります。', b: 'その秩序がチーム内の調和を優先すべきです。' },
+      { l: 'discipline', r: 'includer', a: 'ルーチンと規律が、組織の土台を形成します。', b: 'そのルーチンが、すべての人を含むものであるべきです。' },
+      { l: 'discipline', r: 'individualization', a: 'スタンダードなプロセスに従うことが大切だと思います。', b: '個々人のニーズに合わせた柔軟な対応も必要です。' },
+      { l: 'discipline', r: 'positivity', a: 'チェックリストと規律が、確実な実行を保証します。', b: 'ただし、その過程を楽しむポジティブさも大切です。' },
+      { l: 'discipline', r: 'relator', a: 'スケジュール管理を徹底して、約束を守ります。', b: 'その過程で、人間関係を深める時間も確保したいです。' },
+      { l: 'discipline', r: 'analytical', a: '規律を持って実行することで、ミスが減ります。', b: 'その実行データを分析して、さらに改善すべきです。' },
+      { l: 'focus', r: 'adaptability', a: '明確な目標に向かって、ぶれずに進みたいです。', b: '状況の変化に応じて、目標自体も柔軟に調整すべきです。' },
+      { l: 'focus', r: 'connectedness', a: '優先事項に集中することで、大きな目標が達成できます。', b: '人生の深い意味と目的を感じながら進むことも大切です。' },
+      { l: 'focus', r: 'developer', a: 'チームの目標に集中することで、成果が生まれます。', b: 'その過程で、メンバーの成長をサポートしたいです。' },
+      { l: 'focus', r: 'empathy', a: '目標達成に向けて、集中力を高めることが大切です。', b: 'メンバーの気持ちや状況も理解しながら進むべきです。' },
+      { l: 'focus', r: 'harmony', a: '明確な方向性を示すことで、チームがまとまります。', b: 'ただし、その方向性がチーム内の調和を損なわないか確認が必要です。' },
+      { l: 'focus', r: 'includer', a: '優先順位を明確にすることで、効率が上がります。', b: 'その優先順位が、すべての人の意見を踏まえたものであるべきです。' },
+      { l: 'focus', r: 'individualization', a: '統一的な目標を掲げることで、チーム全体が動きます。', b: '個々人の異なる目標も認識して、両立させるべきです。' },
+      { l: 'focus', r: 'positivity', a: '目標達成に向けて、計画的に進めることが大切です。', b: '楽観的な見方で、困難を乗り越えることも重要です。' },
+      { l: 'focus', r: 'relator', a: '共有された目標に向かって、一致団結して進みます。', b: 'その目標を達成する過程で、人間関係を深めたいです。' },
+      { l: 'focus', r: 'analytical', a: '明確で計測可能な目標を設定することが大切です。', b: 'その目標達成までのプロセスを詳しく分析するべきです。' },
+      { l: 'responsibility', r: 'adaptability', a: '引き受けた約束は、必ず実現する責任があります。', b: '状況の変化に応じて、対応方法も柔軟に変えるべきです。' },
+      { l: 'responsibility', r: 'connectedness', a: '自分の言葉に責任を持つことが、信頼につながります。', b: 'その責任感は、人生の深い意味と結びついています。' },
+      { l: 'responsibility', r: 'developer', a: '自分の役割を果たすことに全力で取り組みます。', b: 'その過程で、他者の成長をサポートしたいです。' },
+      { l: 'responsibility', r: 'empathy', a: '約束を守る義務感が、自分を駆動させます。', b: 'ただし、相手の事情や感情も理解して対応すべきです。' },
+      { l: 'responsibility', r: 'harmony', a: '信頼される人になることが、私の目標です。', b: 'その信頼を、チーム内の調和を損なわずに構築したいです。' },
+      { l: 'responsibility', r: 'includer', a: '自分に課された責任を、確実に果たします。', b: 'その過程で、関係者全員を含める努力も大切です。' },
+      { l: 'responsibility', r: 'individualization', a: '約束を実現することが、何より大切だと思います。', b: 'その実現方法は、個々人のニーズに合わせるべきです。' },
+      { l: 'responsibility', r: 'positivity', a: '責任ある行動を通じて、自分の価値を示したいです。', b: 'その過程を、ポジティブに進めることも大切です。' },
+      { l: 'responsibility', r: 'relator', a: 'チームメンバーへの責任感が、自分を支えます。', b: 'その責任を果たしながら、深い人間関係も築きたいです。' },
+      { l: 'responsibility', r: 'analytical', a: 'すべての約束を完全に果たすことに全力投球します。', b: 'その過程で、改善すべき点を常に分析するべきです。' },
+      { l: 'restorative', r: 'activator', a: '問題の根本原因を特定して、解決したいです。', b: 'まずは行動してみて、その過程で問題を解決していくべきです。' },
+      { l: 'restorative', r: 'command', a: 'トラブルシューティング能力が、自分の強みです。', b: '問題に対して、素早く決断と指示を出すべきです。' },
+      { l: 'restorative', r: 'communication', a: 'なぜ問題が起きたのか、詳しく分析することが大切です。', b: '問題解決の方法を、分かりやすく説明することが重要です。' },
+      { l: 'restorative', r: 'competition', a: 'トラブル対応を通じて、スキルを磨きたいです。', b: '他のチームと比較して、より良い解決方法を目指すべきです。' },
+      { l: 'restorative', r: 'maximizer', a: '問題を早期に発見・解決することが、得意分野です。', b: '問題解決の質を高めることに、注力したいです。' },
+      { l: 'restorative', r: 'self-assurance', a: '自分のトラブルシューティング能力に信頼があります。', b: '自信を持って、問題解決に当たるべきです。' },
+      { l: 'restorative', r: 'significance', a: 'トラブルを解決することで、自分の価値を示したいです。', b: 'その貢献を認識してもらうことも大切です。' },
+      { l: 'restorative', r: 'woo', a: 'トラブル対応を通じて、チームとの関係を深めたいです。', b: 'コミュニケーションを取りながら、問題解決を進めるべきです。' },
+      { l: 'activator', r: 'command', a: '行動を起こしてみることで、学べることがあります。', b: '判断と決定は、確信を持って下すべきです。' },
+      { l: 'activator', r: 'communication', a: 'まずは動いて、その中で調整していくのが効率的です。', b: '事前に計画を説明することで、チームの理解を得るべきです。' },
+      { l: 'activator', r: 'competition', a: 'スピーディーに行動することが、競争力につながります。', b: '他者との競争の中で、より良い成果を目指すべきです。' },
+      { l: 'activator', r: 'maximizer', a: 'とにかく実行してみることで、改善点が見えてきます。', b: '完成度を高めることに、こだわるべきです。' },
+      { l: 'activator', r: 'self-assurance', a: '自分の判断を信じて、行動を起こします。', b: '自信を持つことで、さらに大胆に行動できます。' },
+      { l: 'activator', r: 'significance', a: 'スピーディーな行動が、チームを動かします。', b: '自分の行動が、大きなインパクトを持つことを意識したいです。' },
+      { l: 'activator', r: 'woo', a: 'とりあえず始めてみることで、関係も広がります。', b: '人間関係を構築しながら、プロジェクトを進めるべきです。' },
+      { l: 'command', r: 'communication', a: '決定を下して、チームを動かすことが自分の役割です。', b: 'その決定を、チーム全体に分かりやすく伝えるべきです。' },
+      { l: 'command', r: 'competition', a: 'リーダーシップを発揮することで、チームが勝ちます。', b: 'ライバルチームと比較して、より良い成果を目指すべきです。' },
+      { l: 'command', r: 'maximizer', a: 'チームを束ねる指導力が、自分の強みです。', b: 'チーム全体の質を高めることにこだわるべきです。' },
+      { l: 'command', r: 'self-assurance', a: 'リーダーとしての判断に、自信を持っています。', b: 'その自信をもとに、大きな決定を下すべきです。' },
+      { l: 'command', r: 'significance', a: 'リーダーとして、チームを導くことが使命です。', b: 'その指導力を通じて、大きな成果を生み出したいです。' },
+      { l: 'command', r: 'woo', a: '明確な指示を出すことで、チームが動きます。', b: 'メンバーを巻き込みながら、リーダーシップを発揮すべきです。' },
+      { l: 'communication', r: 'competition', a: 'ストーリーを通じて、メッセージを伝えることが得意です。', b: '他者と比較して、より説得力のあるプレゼンができます。' },
+      { l: 'communication', r: 'maximizer', a: 'わかりやすく説明することが、自分のスキルです。', b: 'プレゼンテーションの質を常に高めたいです。' },
+      { l: 'communication', r: 'self-assurance', a: 'パブリックスピーキングに、自信があります。', b: '自分の言葉に説得力があると、信じています。' },
+      { l: 'communication', r: 'significance', a: 'スピーチを通じて、聴衆に影響を与えたいです。', b: 'そのスピーチが、大きなインパクトを持つことを目指したいです。' },
+      { l: 'communication', r: 'woo', a: 'コミュニケーション能力を通じて、人間関係を広げたいです。', b: '新しい人間関係を構築する中で、自分の想いを伝えたいです。' },
+      { l: 'competition', r: 'maximizer', a: '競争を通じて、自分を高めたいです。', b: '完成度を求める過程で、競争相手と比較することも大切です。' },
+      { l: 'competition', r: 'self-assurance', a: 'ライバルに勝つという目標が、自分を駆動させます。', b: 'その過程で、自分の能力への信頼も深まります。' },
+      { l: 'competition', r: 'significance', a: '競争に勝つことで、自分の価値を示したいです。', b: 'その勝利が、周囲に認識されることが大切です。' },
+      { l: 'competition', r: 'woo', a: 'ライバルという関係を通じて、自分を成長させたいです。', b: '競争相手とも、良好な人間関係を保つべきです。' },
+      { l: 'maximizer', r: 'self-assurance', a: '得意なことに集中して、卓越性を追求したいです。', b: '自分の強みに対する自信が、その追求を支えています。' },
+      { l: 'maximizer', r: 'significance', a: '自分の得意分野で、最高の成果を生み出したいです。', b: 'その成果が、周囲に認識されることが大切です。' },
+      { l: 'maximizer', r: 'woo', a: '得意なことで、他者に価値を提供したいです。', b: 'その過程で、良好な人間関係も築きたいです。' },
+      { l: 'self-assurance', r: 'significance', a: '自分の能力を信じることで、大きなことに挑戦できます。', b: 'その挑戦が、自分の価値を世に示すチャンスになります。' },
+      { l: 'self-assurance', r: 'woo', a: '自分の能力に自信があるので、新しい挑戦もできます。', b: 'その過程で、多くの人との関係を構築したいです。' },
+      { l: 'significance', r: 'woo', a: '自分の成果が世に認識されることが、モチベーションです。', b: '多くの人との関係を通じて、自分の価値を示したいです。' }
+    ];
+
+    // グローバル変数
+    let currentQ = 0;
+    let answers = {};
+    let scores = {};
+    let quizStarted = false;
+
+    // タブ切り替え
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // 34資質一覧タブの生成
+    function buildBrowse() {
+      const browse = document.getElementById('browse');
+      const domainOrder = ['exe', 'inf', 'rel', 'str'];
+
+      browse.innerHTML = '';
+      domainOrder.forEach(cat => {
+        const strengths = S.filter(s => s.cat === cat);
+        const section = document.createElement('div');
+        section.className = 'domain-section';
+
+        const title = document.createElement('div');
+        title.className = 'domain-title';
+        title.style.borderBottomColor = CATS[cat].color;
+        title.textContent = CATS[cat].name;
+        section.appendChild(title);
+
+        const cards = document.createElement('div');
+        cards.className = 'strength-cards';
+
+        strengths.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'strength-card';
+          card.innerHTML = `
+            <div class="strength-card-header" style="background-color: ${CATS[s.cat].color}">
+              <div class="strength-card-name">${s.name}</div>
+              <div class="strength-card-en">${s.en}</div>
+            </div>
+            <div class="strength-card-body">
+              <div class="strength-card-desc">${s.desc}</div>
+              <div class="strength-card-tips">
+                <strong>活用のヒント：</strong>
+                <ul>
+                  ${s.tips.map(tip => `<li>${tip}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            card.classList.toggle('expanded');
+          });
+          cards.appendChild(card);
+        });
+
+        section.appendChild(cards);
+        browse.appendChild(section);
+      });
+    }
+
+    // 診断開始
+    function startQuiz() {
+      quizStarted = true;
+      currentQ = 0;
+      answers = {};
+      document.querySelector('.quiz-intro').style.display = 'none';
+      document.querySelector('.quiz-container').classList.add('active');
+      displayQuestion();
+    }
+
+    // 質問表示
+    function displayQuestion() {
+      if (currentQ >= Q.length) return;
+
+      const q = Q[currentQ];
+      const left = S.find(s => s.id === q.l);
+      const right = S.find(s => s.id === q.r);
+
+      document.getElementById('text-a').textContent = q.a;
+      document.getElementById('text-b').textContent = q.b;
+      document.getElementById('progress-num').textContent = Object.keys(answers).length;
+
+      const progressPercent = (Object.keys(answers).length / Q.length) * 100;
+      document.querySelector('.progress-fill').style.width = progressPercent + '%';
+
+      const buttons = document.getElementById('scale-buttons');
+      buttons.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'scale-btn';
+        btn.textContent = i;
+        if (answers[currentQ] === i) btn.classList.add('selected');
+        btn.addEventListener('click', () => answer(i));
+        buttons.appendChild(btn);
+      }
+
+      document.getElementById('prev-btn').disabled = currentQ === 0;
+      document.getElementById('next-btn').disabled = false;
+
+      if (Object.keys(answers).length === Q.length) {
+        document.getElementById('completion-panel').classList.add('show');
+      } else {
+        document.getElementById('completion-panel').classList.remove('show');
+      }
+    }
+
+    // 回答記録
+    function answer(val) {
+      answers[currentQ] = val;
+      displayQuestion();
+
+      if (Object.keys(answers).length < Q.length) {
+        setTimeout(nextQ, 350);
+      }
+    }
+
+    // 前の質問
+    function prevQ() {
+      if (currentQ > 0) {
+        currentQ--;
+        displayQuestion();
+      }
+    }
+
+    // 次の質問
+    function nextQ() {
+      if (currentQ < Q.length - 1) {
+        currentQ++;
+        displayQuestion();
+      }
+    }
+
+    // スコア計算
+    function calcScores() {
+      scores = {};
+      S.forEach(s => {
+        scores[s.id] = { raw: 0, count: 0, name: s.name, cat: s.cat };
+      });
+
+      Q.forEach((q, idx) => {
+        const val = answers[idx];
+        if (val === undefined) return;
+
+        const aScore = 6 - val;
+        const bScore = val;
+
+        scores[q.l].raw += aScore;
+        scores[q.l].count++;
+        scores[q.r].raw += bScore;
+        scores[q.r].count++;
+      });
+
+      Object.keys(scores).forEach(id => {
+        const final = (scores[id].raw / (scores[id].count * 5)) * 100;
+        scores[id].final = Math.round(final);
+      });
+
+      return scores;
+    }
+
+    // 結果表示
+    function showResults() {
+      if (Object.keys(answers).length < Q.length) return;
+
+      calcScores();
+
+      const results = document.getElementById('results');
+      const resultsContainer = document.querySelector('.results-container');
+      resultsContainer.classList.add('active');
+
+      const sorted = Object.keys(scores)
+        .map(id => ({ id, ...scores[id] }))
+        .sort((a, b) => b.final - a.final);
+
+      const domainScores = {};
+      ['exe', 'inf', 'rel', 'str'].forEach(cat => {
+        const catScores = sorted.filter(s => s.cat === cat).map(s => s.final);
+        domainScores[cat] = Math.round(catScores.reduce((a, b) => a + b, 0) / catScores.length);
+      });
+
+      const dominant = Object.keys(domainScores).sort((a, b) => domainScores[b] - domainScores[a])[0];
+
+      let html = `
+        <div class="results-header">
+          <div class="dominant-domain">🎯 あなたの支配的ドメイン: <strong>${CATS[dominant].name}</strong></div>
+          <div style="margin-top: 20px;">
+      `;
+
+      Object.keys(domainScores).forEach(cat => {
+        const score = domainScores[cat];
+        html += `
+          <div class="domain-score-bar">
+            <div class="domain-score-bar-label">${CATS[cat].name}</div>
+            <div class="domain-score-bar-fill" style="width: ${score}%; background-color: ${CATS[cat].color};">
+              ${score}/100
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+
+        <div class="top5-section">
+          <div class="section-title">🌟 上位5資質</div>
+          <div class="top5-cards">
+      `;
+
+      sorted.slice(0, 5).forEach((s, idx) => {
+        html += `
+          <div class="result-card" style="border-left-color: ${CATS[s.cat].color}">
+            <div class="result-card-rank">#${idx + 1}</div>
+            <div class="result-card-name">${s.name}</div>
+            <div class="result-card-score">${s.final}</div>
+            <div class="result-card-desc">${S.find(x => x.id === s.id).desc}</div>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+
+        <div class="top5-section">
+          <div class="section-title">📊 全34資質ランキング</div>
+          <div class="ranking-table">
+            <table>
+              <thead>
+                <tr>
+                  <th class="ranking-rank">順位</th>
+                  <th class="ranking-name">資質</th>
+                  <th class="ranking-score">スコア</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      sorted.forEach((s, idx) => {
+        html += `
+          <tr>
+            <td class="ranking-rank">#${idx + 1}</td>
+            <td class="ranking-name" style="color: ${CATS[s.cat].color}; font-weight: bold;">${s.name}</td>
+            <td class="ranking-score">${s.final}/100</td>
+          </tr>
+        `;
+      });
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+          <button class="retry-btn" onclick="resetQuiz()">もう一度診断する</button>
+        </div>
+      `;
+
+      results.innerHTML = html;
+
+      setTimeout(() => {
+        document.querySelectorAll('.domain-score-bar-fill').forEach(el => {
+          const width = el.style.width;
+          el.style.width = '0';
+          setTimeout(() => {
+            el.style.transition = 'width 1.2s ease';
+            el.style.width = width;
+          }, 100);
+        });
+      }, 100);
+
+      document.querySelectorAll('.tab-btn')[2].click();
+    }
+
+    // リセット
+    function resetQuiz() {
+      quizStarted = false;
+      currentQ = 0;
+      answers = {};
+      scores = {};
+      document.querySelector('.quiz-intro').style.display = 'block';
+      document.querySelector('.quiz-container').classList.remove('active');
+      document.querySelector('.results-container').classList.remove('active');
+      document.getElementById('completion-panel').classList.remove('show');
+      document.querySelectorAll('.tab-btn')[1].click();
+    }
+
+    // 初期化
+    buildBrowse();
+  </script>
+</body>
+</html>
